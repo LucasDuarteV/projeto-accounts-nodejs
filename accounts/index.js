@@ -2,11 +2,10 @@ const chalk = require('chalk')
 const inquirer = require('inquirer')
 
 const fs = require('fs')
-const { error } = require('console')
 
 operation()
 
-function operation(){
+function operation() {
     inquirer.prompt([{
         type: 'list',
         name: 'action',
@@ -18,8 +17,50 @@ function operation(){
             'Sacar',
             'Sair',
         ]
-    }]).then((answer =>{
-        console.log(answer)
+    }]).then((answer => {
+
+        const action = answer.action
+
+        switch (action) {
+            case 'Criar Conta':
+                createAccount()
+                break
+        }
+
+    })).catch(error => {
+        console.log(error)
+    })
+}
+
+function createAccount() {
+    console.log(chalk.bgGreen.black('Parabéns por escolher nosso banco!'))
+    console.log(chalk.green('Defina as opções da sua conta a seguir'))
+    buildAccount()
+}
+
+function buildAccount() {
+    inquirer.prompt([{
+        name: 'accountName',
+        message: 'Digite um nome para sua conta:',
+    }]).then((answer => {
+        const accountName = answer['accountName']
+
+        console.info(accountName)
+
+        if (!fs.existsSync('accounts')) {
+            fs.mkdirSync('accounts')
+        }
+
+        if (fs.existsSync(`accounts/${accountName}.json`)) {
+            console.log(chalk.bgRed.black('Esta conta já existe, escolha outro nome!'))
+            buildAccount()
+            return
+        }
+
+        fs.writeFileSync(`accounts/${accountName}.json`, '{"balance": 0}')
+
+        console.log(chalk.green("Parabéns a sua conta foi criada!"))
+        operation()
     })).catch(error => {
         console.log(error)
     })
