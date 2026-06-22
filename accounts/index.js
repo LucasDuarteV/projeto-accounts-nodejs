@@ -28,6 +28,7 @@ function operation() {
                 break
 
             case 'Consultar Saldo':
+                getACcountBalance()
                 break
 
             case 'Depositar':
@@ -147,4 +148,24 @@ function getAccount(accountName){
         }
     )
     return JSON.parse(accountJSON)
+}
+
+function getACcountBalance(){
+    inquirer.prompt([{
+        name: 'accountName',
+        message: 'Qual o nome da sua conta?'
+    }]).then((answer =>
+    
+        {
+            const accountName = answer['accountName']
+            if(!checkAccount(accountName)){
+                return getACcountBalance()
+            }
+
+            const accountData = getAccount(accountName)
+            console.log(chalk.bgBlue.black(`Olá, o saldo da sua conta é de R$ ${accountData.balance}`))
+            operation()
+        }
+    ))
+    .catch(err => console.log(err))
 }
