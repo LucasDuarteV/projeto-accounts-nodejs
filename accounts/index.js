@@ -2,8 +2,6 @@ const chalk = require('chalk')
 const inquirer = require('inquirer')
 
 const fs = require('fs')
-const { get } = require('http')
-const { error } = require('console')
 
 operation()
 
@@ -29,7 +27,7 @@ function operation() {
                 break
 
             case 'Consultar Saldo':
-                getACcountBalance()
+                getAccountBalance()
                 break
 
             case 'Depositar':
@@ -152,7 +150,7 @@ function getAccount(accountName){
     return JSON.parse(accountJSON)
 }
 
-function getACcountBalance(){
+function getAccountBalance(){
     inquirer.prompt([{
         name: 'accountName',
         message: 'Qual o nome da sua conta?'
@@ -161,7 +159,7 @@ function getACcountBalance(){
         {
             const accountName = answer['accountName']
             if(!checkAccount(accountName)){
-                return getACcountBalance()
+                return getAccountBalance()
             }
 
             const accountData = getAccount(accountName)
@@ -190,8 +188,31 @@ function withDrawn(){
     }]).then((answer =>{
         const amount = answer['amount']
 
-        console.log (amount)
-        operation()
+        removeAmount(accountName, amount)
+
     })).catch(error => console.log(error))
 })).catch(error => console.log(error))
+}
+
+function removeAmount(accountName,amount){
+    const accountData = getAccount(accountName)
+    if(!amount){
+        console.log(chalk.bgRed('Ocorreu um erro'))
+        return withDrawn()
+    }
+
+    if(accountData.balance < amount){
+        console.log(chalk.bgRed.black("Valor indisponivel"))
+        return withDrawn()
+    }
+
+    accountData.balance = parseFloat(accountData.balance) - parseFloat(amount)
+
+    fs.writeFileSync(
+        `accounts/${accountName}.json`,
+        JSON.stringify(accountData)
+    )
+
+    console.log(chalk.green(`Foi realizado um saque de R$${amount} reais da sua conta!`))
+    operation()
 }
