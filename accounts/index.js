@@ -3,6 +3,7 @@ const inquirer = require('inquirer')
 
 const fs = require('fs')
 const { get } = require('http')
+const { error } = require('console')
 
 operation()
 
@@ -36,6 +37,7 @@ function operation() {
                 break
             
             case 'Sacar':
+                withDrawn()
                 break
             
             case 'Sair':
@@ -168,4 +170,28 @@ function getACcountBalance(){
         }
     ))
     .catch(err => console.log(err))
+}
+
+function withDrawn(){
+    inquirer.prompt([{
+        name: 'accountName',
+        message: 'Qual nome da sua conta?'
+    }
+]).then((answer =>{
+    const accountName = answer['accountName']
+
+    if(!checkAccount(accountName)){
+        return withDrawn()
+    }
+
+    inquirer.prompt([{
+        name: 'amount',
+        message: 'Qual quantia você deseja sacar?'
+    }]).then((answer =>{
+        const amount = answer['amount']
+
+        console.log (amount)
+        operation()
+    })).catch(error => console.log(error))
+})).catch(error => console.log(error))
 }
