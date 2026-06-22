@@ -2,6 +2,7 @@ const chalk = require('chalk')
 const inquirer = require('inquirer')
 
 const fs = require('fs')
+const { get } = require('http')
 
 operation()
 
@@ -94,6 +95,20 @@ function deposit(){
             return deposit()
         }
 
+        inquirer.prompt([
+            {
+                name: 'amount',
+                message: 'Quanto você deseja depositar'
+            }
+        ]).then(answer =>{
+
+            const amount = answer['amount']
+            addAmount(accountName , amount)
+            operation()
+
+        }).catch(error => console.log(error))
+
+
     })).catch(error => {
         console.log(error)
     })
@@ -106,4 +121,30 @@ function checkAccount(accountName){
     }
 
     return true
+}
+
+function addAmount(accountName , amount){
+
+    const accountData = getAccount(accountName)
+
+    if(!amount){
+        console.log(chalk.bgRed.black("Ocorreu um erro!"))
+        return deposit()
+    }
+    accountData.balance = parseFloat(amount) + parseFloat(accountData.balance)
+    fs.writeFileSync(`accounts/${accountName}.json`,
+        JSON.stringify(accountData)
+    )
+
+    console.log(chalk.green(`Foi depositado o valor de R$ ${amount} na sua conta!!!`))
+}
+
+function getAccount(accountName){
+    const accountJSON = fs.readFileSync(`accounts/${accountName}.json`,
+        {
+            encoding: 'utf-8',
+            flag: 'r'
+        }
+    )
+    return JSON.parse(accountJSON)
 }
