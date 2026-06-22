@@ -30,6 +30,7 @@ function operation() {
                 break
 
             case 'Depositar':
+                deposit()
                 break
             
             case 'Sacar':
@@ -79,4 +80,30 @@ function buildAccount() {
     })).catch(error => {
         console.log(error)
     })
+}
+
+function deposit(){
+    inquirer.prompt([
+        {
+            name: 'accountName',
+            message: 'Qual o nome da sua conta?'
+        }
+    ]).then((answer =>{
+        const accountName = answer['accountName']
+        if(!checkAccount(accountName)){
+            return deposit()
+        }
+
+    })).catch(error => {
+        console.log(error)
+    })
+}
+
+function checkAccount(accountName){
+    if(!fs.existsSync(`accounts/${accountName}.json`)){
+        console.log(chalk.bgRed.black("Essa conta não existe, escolha outro nome!!"))
+        return false
+    }
+
+    return true
 }
